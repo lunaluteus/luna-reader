@@ -30,10 +30,10 @@ jobs:
           test -f _site/web/viewer.html
           test -f _site/build/pdf.mjs
 
-      - name: Apply page inversion and empty-file entry point
+      - name: Apply native PDF.js colors and empty-file entry point
         run: |
           set -euo pipefail
-          cp dark.css _site/web/dark.css
+          cp dark.css colors.js _site/web/
           python3 - <<'PY'
           from pathlib import Path
 
@@ -43,7 +43,8 @@ jobs:
           viewer.write_text(
               html.replace(
                   "</head>",
-                  '<link rel="stylesheet" href="dark.css">\n</head>',
+                  '<link rel="stylesheet" href="dark.css">\n',
+                  '<script src="colors.js"></script>\n</head>',
                   1,
               ),
               encoding="utf-8",
