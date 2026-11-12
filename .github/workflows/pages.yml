@@ -7,160 +7,25 @@ on:
 
 permissions:
   contents: read
-
-concurrency:
-  group: github-pages
-  cancel-in-progress: false
+  pages: write
+  id-token: write
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download official PDF.js viewer
-        env:
-          PDFJS_VERSION: "6.5.438"
-        run: |
-          set -euo pipefail
-          curl --fail --location --retry 3 --silent --show-error \
-            "https://github.com/mozilla/pdf.js/releases/download/v${PDFJS_VERSION}/pdfjs-${PDFJS_VERSION}-dist.zip" \
-            --output /tmp/pdfjs.zip
-          mkdir -p _site
-          unzip -q /tmp/pdfjs.zip -d _site
-          test -f _site/web/viewer.html
-          test -f _site/build/pdf.mjs
-
-      - name: Apply native PDF.js colors and empty-file entry point
-        run: |
-          set -euo pipefail
-          cp dark.css colors.js launch.js _site/web/
-          cp manifest.json _site/
-          python3 - <<'PY'
-          from hashlib import sha256
-          from html.parser import HTMLParser
-          from pathlib import Path
-          import struct
-          import zlib
-
-          # Version the CSS URL so browsers don't reuse the previous inversion filter.
-          css_version = sha256(Path("_site/web/dark.css").read_bytes()).hexdigest()[:12]
-          launch_version = sha256(Path("_site/web/launch.js").read_bytes()).hexdigest()[:12]
-          viewer = Path("_site/web/viewer.html")
-          html = viewer.read_text(encoding="utf-8")
-          assert "</head>" in html, "Upstream viewer markup changed"
-          assert "<title>PDF.js viewer</title>" in html, "Upstream viewer title changed"
-          html = html.replace("<title>PDF.js viewer</title>", "<title>Luna Reader</title>", 1)
-
-          # The generic PDF.js viewer has a strict CSP: default-src 'none'.
-          # Preserve it, allowing only same-origin PWA manifests.
-          class CSPMetaParser(HTMLParser):
-              def __init__(self):
-                  super().__init__()
-                  self.tags = []
-
-              def handle_starttag(self, tag, attrs):
-                  if tag == "meta" and dict(attrs).get("http-equiv", "").lower() == "content-security-policy":
-                      self.tags.append(self.get_starttag_text())
-
-          policies = CSPMetaParser()
-          policies.feed(html)
-          assert len(policies.tags) == 1, "Expected one active upstream CSP meta tag"
-          original_tag = policies.tags[0]
-          if "manifest-src" not in original_tag:
-              assert "default-src 'none';" in original_tag, "Unexpected PDF.js CSP"
-              patched_tag = original_tag.replace(
-                  "default-src 'none';",
-                  "default-src 'none'; manifest-src 'self';",
-                  1,
-              )
-              html = html.replace(original_tag, patched_tag, 1)
-          assert "manifest-src 'self'" in html, "PWA manifest remains blocked by CSP"
-
-          viewer.write_text(
-              html.replace(
-                  "</head>",
-                  f'<link rel="stylesheet" href="dark.css?v={css_version}">\n'
-                  '<link rel="manifest" href="../manifest.json">\n'
-                  '<script src="colors.js"></script>\n'
-                  f'<script src="launch.js?v={launch_version}"></script>\n</head>',
-                  1,
-              ),
-              encoding="utf-8",
-          )
-
-          # GitHub Pages project root redirects to the unmodified viewer,
-          # with no sample PDF loaded (as documented by PDF.js).
-          Path("_site/index.html").write_text(
-              '<!doctype html><html lang="en"><head><meta charset="utf-8">'
-              '<meta http-equiv="refresh" content="0;url=web/viewer.html?file=">'
-              '<title>Luna Reader</title>'
-              '<link rel="manifest" href="manifest.json"></head><body>'
-              '<a href="web/viewer.html?file=">Open PDF Reader</a>'
-              '</body></html>\n',
-              encoding="utf-8",
-          )
-          # Generate 192/512px installation icons with the Python standard library.
-          def chunk(tag, payload):
-              return (struct.pack(">I", len(payload)) + tag + payload
-                      + struct.pack(">I", zlib.crc32(tag + payload) & 0xFFFFFFFF))
-
-          icon_dir = Path("_site/web/icons")
-          icon_dir.mkdir(parents=True, exist_ok=True)
-          for size in (192, 512):
-              pixels = bytearray()
-              for y in range(size):
-                  pixels.append(0)  # PNG filter: none
-                  for x in range(size):
-                      u, v = x / size, y / size
-                      color = (52, 54, 59)  # Background
-                      if .23 <= u <= .77 and .13 <= v <= .87:
-                          color = (189, 193, 200)  # Document
-                          if .62 <= u <= .77 and .13 <= v <= .28:
-                              color = (122, 129, 144) if u + v >= .90 else (52, 54, 59)
-                          if .31 <= u <= .66 and any(a <= v <= a + .025 for a in (.39, .49, .59, .69)):
-                              color = (72, 77, 89)  # Lines
-                      pixels.extend(color)
-              raw = (b"\x89PNG\r\n\x1a\n"
-                     + chunk(b"IHDR", struct.pack(">IIBBBBB", size, size, 8, 2, 0, 0, 0))
-                     + chunk(b"IDAT", zlib.compress(bytes(pixels), 9))
-                     + chunk(b"IEND", b""))
-              (icon_dir / f"app-{size}.png").write_bytes(raw)
-
-          # Fail this build instead of silently deploying a viewer without PWA metadata.
-          import json
-          manifest = json.loads(Path("_site/manifest.json").read_text(encoding="utf-8"))
-          assert manifest["id"] == "/luna-reader/"
-          assert manifest["name"] == "Luna Reader"
-          assert manifest["file_handlers"][0]["accept"]["application/pdf"] == [".pdf"]
-          assert manifest["start_url"].startswith("./web/viewer.html")
-          assert all((Path("_site") / item["src"]).is_file() for item in manifest["icons"])
-          for file in ("_site/index.html", "_site/web/viewer.html"):
-              content = Path(file).read_text(encoding="utf-8")
-              assert 'rel="manifest"' in content, f"{file}: manifest link missing"
-          assert 'href="../manifest.json"' in Path("_site/web/viewer.html").read_text()
-          assert 'href="manifest.json"' in Path("_site/index.html").read_text()
-          final_policies = CSPMetaParser()
-          final_policies.feed(Path("_site/web/viewer.html").read_text(encoding="utf-8"))
-          assert len(final_policies.tags) == 1
-          assert "default-src 'none';" in final_policies.tags[0]
-          assert "manifest-src 'self';" in final_policies.tags[0]
-          Path("_site/.nojekyll").touch()
-          PY
-
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v4
-        with:
-          path: _site
-
   deploy:
-    needs: build
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+          curl -fLsS https://github.com/mozilla/pdf.js/releases/download/v6.5.438/pdfjs-6.5.438-dist.zip -o /tmp/pdfjs.zip
+          unzip -q /tmp/pdfjs.zip -d _site
+          python3 build.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
