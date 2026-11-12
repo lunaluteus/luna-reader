@@ -12,13 +12,13 @@ official PDF.js release (**v6.5.438**) and publishes it to GitHub Pages.
 Only two small custom files are injected into the viewer:
 
 - [`colors.js`](colors.js) sets the native PDF.js viewer preferences
-  `forcePageColors: true`, `pageColorsBackground: "#1b1c20"`,
-  and `pageColorsForeground: "#e4e6ec"` before the viewer starts.
+  `forcePageColors: true`, `pageColorsBackground: "#34363b"`,
+  and `pageColorsForeground: "#bdc1c8"` before the viewer starts.
 - [`dark.css`](dark.css) matches unrendered page placeholders to the dark background
   and displays a prompt when no file is open.
 
 Unlike CSS inversion, PDF.js page recoloring aims to preserve images and figures.
-It is a high-contrast color override, not a guaranteed conversion of every PDF
+It is a native foreground/background color override, not a guaranteed conversion of every PDF
 element; some text, vector graphics, or backgrounds may retain their colors.
 The viewer retains upstream support for selectable text, hyperlinks, search,
 outlines, navigation, forms, printing, and drag-and-drop/file-picker opening.
