@@ -8,7 +8,7 @@ Open `index.html` on GitHub Pages. Drag a PDF into the start screen (or click to
 
 - Drag-and-drop or file picker to open local PDFs
 - Dark and original page colors using PDF.js `pageColors`
-- Continuous, lazy-rendered pages, selectable text, page navigation, and zoom
+- Continuous, lazy-rendered pages, page navigation, and zoom
 - Static HTML/CSS/JavaScript; no server, account, build step, or PDF upload
 
 ## Deployment
