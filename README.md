@@ -9,13 +9,15 @@ No iframe, fork, custom renderer, npm install, or server.
 
 On each deployment, [GitHub Actions](.github/workflows/pages.yml) downloads the
 official PDF.js release (**v6.5.438**) and publishes it to GitHub Pages.
-Only two small custom files are injected into the viewer:
+Three small custom files support dark colors and Windows file association:
 
 - [`colors.js`](colors.js) sets the native PDF.js viewer preferences
   `forcePageColors: true`, `pageColorsBackground: "#34363b"`,
   and `pageColorsForeground: "#bdc1c8"` before the viewer starts.
 - [`dark.css`](dark.css) matches unrendered page placeholders to the dark background
   and displays a prompt when no file is open.
+- [`launch.js`](launch.js) receives PDF files opened from Windows and passes them
+  to the upstream PDF.js file-opening handler without replacing the viewer.
 
 Unlike CSS inversion, PDF.js page recoloring aims to preserve images and figures.
 It is a native foreground/background color override, not a guaranteed conversion of every PDF
@@ -25,6 +27,20 @@ outlines, navigation, forms, printing, and drag-and-drop/file-picker opening.
 
 The site starts without a sample document using `viewer.html?file=`.
 Local PDFs stay in the browser and are not uploaded to a backend.
+
+## Install as the Windows PDF handler
+
+1. Open the site in **Microsoft Edge** or **Google Chrome** on Windows.
+2. Use the browser's built-in **Install app** option (no extra in-page button).
+3. In Windows **Settings → Apps → Default apps**, choose **PDF Reader** for `.pdf`.
+   Alternatively, right-click a PDF and choose **Open with**.
+4. Double-click a PDF to open it in the installed reader. The browser may ask
+   for permission the first time it handles a local file.
+
+The [PWA manifest](manifest.webmanifest) registers the `.pdf` extension, and
+the deployment generates app icons. No service worker is required for installation
+in current Chromium browsers; **offline use is not guaranteed** because the
+upstream viewer is not explicitly cached for offline access.
 
 ## GitHub Pages setup
 
