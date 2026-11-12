@@ -1,4 +1,4 @@
-// Handle Windows "Open with PDF Reader" launches through the upstream
+// Handle Windows "Open with Luna Reader" launches through the upstream
 // PDF.js file-opening event, preserving its usual navigation and title behavior.
 if ("launchQueue" in window) {
   const viewerReady = new Promise(resolve => {
