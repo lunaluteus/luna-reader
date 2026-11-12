@@ -1,0 +1,81 @@
+name: Deploy PDF Reader
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download official PDF.js viewer
+        env:
+          PDFJS_VERSION: "6.5.438"
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --silent --show-error \
+            "https://github.com/mozilla/pdf.js/releases/download/v${PDFJS_VERSION}/pdfjs-${PDFJS_VERSION}-dist.zip" \
+            --output /tmp/pdfjs.zip
+          mkdir -p _site
+          unzip -q /tmp/pdfjs.zip -d _site
+          test -f _site/web/viewer.html
+          test -f _site/build/pdf.mjs
+
+      - name: Apply page inversion and empty-file entry point
+        run: |
+          set -euo pipefail
+          cp dark.css _site/web/dark.css
+          python3 - <<'PY'
+          from pathlib import Path
+
+          viewer = Path("_site/web/viewer.html")
+          html = viewer.read_text(encoding="utf-8")
+          assert "</head>" in html, "Upstream viewer markup changed"
+          viewer.write_text(
+              html.replace(
+                  "</head>",
+                  '<link rel="stylesheet" href="dark.css">\n</head>',
+                  1,
+              ),
+              encoding="utf-8",
+          )
+
+          # GitHub Pages project root redirects to the unmodified viewer,
+          # with no sample PDF loaded (as documented by PDF.js).
+          Path("_site/index.html").write_text(
+              '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+              '<meta http-equiv="refresh" content="0;url=web/viewer.html?file=">'
+              '<title>PDF Reader</title></head><body>'
+              '<a href="web/viewer.html?file=">Open PDF Reader</a>'
+              '</body></html>\n',
+              encoding="utf-8",
+          )
+          Path("_site/.nojekyll").touch()
+          PY
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
