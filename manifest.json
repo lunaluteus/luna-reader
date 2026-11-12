@@ -1,0 +1,34 @@
+{
+  "id": "./web/viewer.html",
+  "name": "PDF Reader",
+  "short_name": "PDF Reader",
+  "description": "A lightweight local PDF reader",
+  "start_url": "./web/viewer.html?file=",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#34363b",
+  "theme_color": "#34363b",
+  "icons": [
+    {
+      "src": "./web/icons/app-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./web/icons/app-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "./web/viewer.html?file=",
+      "accept": {
+        "application/pdf": [
+          ".pdf"
+        ]
+      },
+      "launch_type": "multiple-clients"
+    }
+  ]
+}
