@@ -1,9 +1,11 @@
-# PDF Reader
+# Luna Reader
 
 A lightweight reader based on Mozilla's **official PDF.js viewer**, hosted on GitHub Pages.
 No iframe, fork, custom renderer, npm install, or server.
 
-**Site:** https://lunaluteus.github.io/pdf-reader/
+**Site:** https://lunaluteus.github.io/luna-reader/
+
+**After the rename:** The PWA identity and site URL have changed. Uninstall the old PDF Reader app from Chrome before installing Luna Reader, then reconfigure the Windows `.pdf` association.
 
 ## How it works
 
@@ -32,7 +34,7 @@ Local PDFs stay in the browser and are not uploaded to a backend.
 
 1. Open the site in **Microsoft Edge** or **Google Chrome** on Windows.
 2. Use the browser's built-in **Install app** option (no extra in-page button).
-3. In Windows **Settings → Apps → Default apps**, choose **PDF Reader** for `.pdf`.
+3. In Windows **Settings → Apps → Default apps**, choose **Luna Reader** for `.pdf`.
    Alternatively, right-click a PDF and choose **Open with**.
 4. Double-click a PDF to open it in the installed reader. The browser may ask
    for permission the first time it handles a local file.
@@ -46,7 +48,7 @@ upstream viewer is not explicitly cached for offline access.
 
 In **Settings → Pages → Build and deployment**, select **GitHub Actions** as
 the source. Pushes to `main` trigger deployment; the workflow can also
-be run manually in **Actions → Deploy PDF Reader**.
+be run manually in **Actions → Deploy Luna Reader**.
 
 ## Customization
 
