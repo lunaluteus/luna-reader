@@ -1,22 +1,33 @@
 # PDF Reader
 
-A lightweight, browser-only PDF reader with whole-page dark rendering.
+A simple PDF reader using Mozilla's **official PDF.js viewer**, hosted on GitHub Pages.
+No fork, iframe, custom renderer, npm install, or server.
 
-Open `index.html` on GitHub Pages. Drag a PDF into the start screen, or click to choose one; the file stays on your device.
+**Site:** https://lunaluteus.github.io/pdf-reader/
 
-## Features
+## How it works
 
-- Drag-and-drop or file picker to open local PDFs
-- Toggle dark and original colors; dark mode applies a CSS filter to the PDF.js canvas to invert all rendered content
-- Continuous, lazy-rendered pages, page navigation, and zoom
-- Static HTML/CSS/JavaScript; no server, account, build step, or PDF upload
+On each deployment, [GitHub Actions](.github/workflows/pages.yml) downloads a pinned
+official PDF.js prebuilt release (**v6.5.438**), adds one [CSS file](dark.css)
+to invert rendered PDF pages, and publishes the distribution to GitHub Pages.
+The upstream viewer provides text selection, search, links, outlines, navigation,
+forms, printing, and drag-and-drop/file-picker opening.
 
-## Deployment
+The site starts with no sample PDF using `viewer.html?file=`. Local PDFs are
+opened by the browser, not uploaded to a server.
 
-Enable **Settings → Pages → Build and deployment → Deploy from a branch**, selecting `main` and `/ (root)`. The site will be served at `https://lunaluteus.github.io/pdf-reader/`.
+## GitHub Pages setup
 
-PDF.js is loaded from a pinned jsDelivr CDN release, so an internet connection is required to load the library. Uploaded PDFs are processed locally in the browser and are not sent to a server. Dark mode transforms the entire rendered page, including pictures and diagrams; use Original to see their original colors.
+In **Settings → Pages → Build and deployment**, select **GitHub Actions**
+as the source. The workflow then deploys from pushes to `main` or can be run
+manually under **Actions → Deploy PDF Reader**.
 
-## Development
+## Customization
 
-Serve the repository with any static HTTP server (for example, `python -m http.server 8000`), then open `http://localhost:8000`. No install step is required.
+Only [`dark.css`](dark.css) is custom viewer code. It uses whole-page inversion,
+so embedded images and colored figures are inverted too. To change the upstream
+release, edit `PDFJS_VERSION` in the workflow.
+
+The viewer is produced only in the Pages deployment artifact, not checked into
+the repository. The original PDF.js license is included in the downloaded
+distribution.
