@@ -1,13 +1,13 @@
 # PDF Reader
 
-A lightweight, browser-only PDF reader with native PDF.js dark-page rendering.
+A lightweight, browser-only PDF reader with whole-page dark rendering.
 
 Open `index.html` on GitHub Pages. Drag a PDF into the start screen, or click to choose one; the file stays on your device.
 
 ## Features
 
 - Drag-and-drop or file picker to open local PDFs
-- Dark and original page colors using PDF.js `pageColors`
+- Toggle dark and original colors; dark mode applies a CSS filter to the PDF.js canvas to invert all rendered content
 - Continuous, lazy-rendered pages, page navigation, and zoom
 - Static HTML/CSS/JavaScript; no server, account, build step, or PDF upload
 
@@ -15,7 +15,7 @@ Open `index.html` on GitHub Pages. Drag a PDF into the start screen, or click to
 
 Enable **Settings → Pages → Build and deployment → Deploy from a branch**, selecting `main` and `/ (root)`. The site will be served at `https://lunaluteus.github.io/pdf-reader/`.
 
-PDF.js is loaded from a pinned jsDelivr CDN release, so an internet connection is required to load the library. Uploaded PDFs are processed locally in the browser and are not sent to a server.
+PDF.js is loaded from a pinned jsDelivr CDN release, so an internet connection is required to load the library. Uploaded PDFs are processed locally in the browser and are not sent to a server. Dark mode transforms the entire rendered page, including pictures and diagrams; use Original to see their original colors.
 
 ## Development
 
