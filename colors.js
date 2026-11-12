@@ -6,8 +6,8 @@ try {
   const prefs = saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {};
   Object.assign(prefs, {
     forcePageColors: true,
-    pageColorsBackground: "#1b1c20",
-    pageColorsForeground: "#e4e6ec",
+    pageColorsBackground: "#34363b",
+    pageColorsForeground: "#bdc1c8",
   });
   localStorage.setItem(key, JSON.stringify(prefs));
   document.documentElement.classList.add("native-page-colors");
