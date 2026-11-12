@@ -38,6 +38,7 @@
     .pages { padding: 28px 16px 60px; display: flex; flex-direction: column; align-items: center; gap: 22px; }
     .page { position: relative; flex: 0 0 auto; background: #1b1c20; box-shadow: 0 8px 35px #0005; max-width: 100%; }
     canvas { display: block; width: 100%; height: 100%; }
+    .pages.dark-pages canvas { filter: invert(0.9) hue-rotate(180deg); }
     .loading { color: #a4a6ae; padding: 24px; text-align: center; }
     .error { color: #ffb5b5; font-size: 13px; margin: 14px 0 0; text-align: center; }
     .drop-overlay { position: fixed; inset: 0; display: grid; place-items: center; background: #101114e8; color: #cbd3ff; border: 5px dashed #a8b5ff; z-index: 50; font-size: 24px; font-weight: 700; pointer-events: none; }
@@ -151,6 +152,7 @@
     const desiredPage = keepPosition ? currentPage : 1;
     const effective = renderScale();
     if (fitWidth) scale = effective;
+    pages.classList.toggle("dark-pages", dark);
     clearRenders();
     pages.replaceChildren();
     const fragment = document.createDocumentFragment();
@@ -200,7 +202,7 @@
         canvasContext: canvas.getContext("2d", { alpha: false }),
         viewport,
         transform: ratio === 1 ? undefined : [ratio, 0, 0, ratio, 0, 0],
-        pageColors: dark ? { background: "#1b1c20", foreground: "#e4e6ec" } : undefined
+        background: "#ffffff"
       });
       await entry.task.promise;
     } catch (err) {
