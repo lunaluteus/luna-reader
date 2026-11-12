@@ -1,4 +1,4 @@
-name: Deploy PDF Reader
+name: Deploy Luna Reader
 
 on:
   push:
@@ -48,6 +48,8 @@ jobs:
           viewer = Path("_site/web/viewer.html")
           html = viewer.read_text(encoding="utf-8")
           assert "</head>" in html, "Upstream viewer markup changed"
+          assert "<title>PDF.js viewer</title>" in html, "Upstream viewer title changed"
+          html = html.replace("<title>PDF.js viewer</title>", "<title>Luna Reader</title>", 1)
 
           # The generic PDF.js viewer has a strict CSP: default-src 'none'.
           # Preserve it, allowing only same-origin PWA manifests.
@@ -91,7 +93,7 @@ jobs:
           Path("_site/index.html").write_text(
               '<!doctype html><html lang="en"><head><meta charset="utf-8">'
               '<meta http-equiv="refresh" content="0;url=web/viewer.html?file=">'
-              '<title>PDF Reader</title>'
+              '<title>Luna Reader</title>'
               '<link rel="manifest" href="manifest.json"></head><body>'
               '<a href="web/viewer.html?file=">Open PDF Reader</a>'
               '</body></html>\n',
@@ -127,6 +129,8 @@ jobs:
           # Fail this build instead of silently deploying a viewer without PWA metadata.
           import json
           manifest = json.loads(Path("_site/manifest.json").read_text(encoding="utf-8"))
+          assert manifest["id"] == "/luna-reader/"
+          assert manifest["name"] == "Luna Reader"
           assert manifest["file_handlers"][0]["accept"]["application/pdf"] == [".pdf"]
           assert manifest["start_url"].startswith("./web/viewer.html")
           assert all((Path("_site") / item["src"]).is_file() for item in manifest["icons"])
