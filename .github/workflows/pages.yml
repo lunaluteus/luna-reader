@@ -35,15 +35,18 @@ jobs:
           set -euo pipefail
           cp dark.css colors.js _site/web/
           python3 - <<'PY'
+          from hashlib import sha256
           from pathlib import Path
 
+          # Version the CSS URL so browsers don't reuse the previous inversion filter.
+          css_version = sha256(Path("_site/web/dark.css").read_bytes()).hexdigest()[:12]
           viewer = Path("_site/web/viewer.html")
           html = viewer.read_text(encoding="utf-8")
           assert "</head>" in html, "Upstream viewer markup changed"
           viewer.write_text(
               html.replace(
                   "</head>",
-                  '<link rel="stylesheet" href="dark.css">\n'
+                  f'<link rel="stylesheet" href="dark.css?v={css_version}">\n'
                   '<script src="colors.js"></script>\n</head>',
                   1,
               ),
