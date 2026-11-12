@@ -1,6 +1,6 @@
 /* Match unrendered page placeholders to the native PDF.js page background. */
 .native-page-colors .pdfViewer {
-  --page-bg-color: #1b1c20;
+  --page-bg-color: #34363b;
 }
 
 /* An empty reader should invite opening a PDF. */
