@@ -14,7 +14,7 @@
     button:disabled { opacity: .35; cursor: not-allowed; }
     button:focus-visible, .dropzone:focus-visible, input:focus-visible { outline: 2px solid #a8b5ff; outline-offset: 3px; }
     [hidden] { display: none !important; }
-    .app { min-height: 100dvh; display: flex; flex-direction: column; }
+    .app { height: 100dvh; min-height: 0; display: flex; flex-direction: column; }
     .toolbar { display: flex; align-items: center; gap: 12px; padding: 10px 18px; min-height: 64px; border-bottom: 1px solid #2b2d32; background: #16171b; position: sticky; top: 0; z-index: 20; }
     .brand { font-size: 15px; font-weight: 700; letter-spacing: -.025em; white-space: nowrap; }
     .filename { min-width: 0; max-width: 32ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #a4a6ae; font-size: 13px; }
@@ -34,9 +34,9 @@
     .description { color: #a7a9b2; line-height: 1.6; margin: 0 0 26px; }
     .pick { border: 0; border-radius: 10px; padding: 12px 22px; font-weight: 650; color: #111522; background: #b3c0ff; }
     .privacy { font-size: 12px; color: #81858f; margin-top: 24px; }
-    .viewer { flex: 1; min-width: 0; background: #202126; overflow: auto; }
+    .viewer { flex: 1; min-width: 0; min-height: 0; background: #202126; overflow: auto; }
     .pages { padding: 28px 16px 60px; display: flex; flex-direction: column; align-items: center; gap: 22px; }
-    .page { position: relative; flex: 0 0 auto; background: white; box-shadow: 0 8px 35px #0005; max-width: 100%; }
+    .page { position: relative; flex: 0 0 auto; background: #1b1c20; box-shadow: 0 8px 35px #0005; max-width: 100%; }
     canvas { display: block; width: 100%; height: 100%; }
     .loading { color: #a4a6ae; padding: 24px; text-align: center; }
     .error { color: #ffb5b5; font-size: 13px; margin: 14px 0 0; text-align: center; }
@@ -160,6 +160,7 @@
       item.dataset.page = String(i + 1);
       item.style.width = Math.floor(pageSizes[i].width * effective) + "px";
       item.style.height = Math.floor(pageSizes[i].height * effective) + "px";
+      item.style.background = dark ? "#1b1c20" : "#ffffff";
       item.setAttribute("aria-label", "Page " + (i + 1));
       fragment.appendChild(item);
     }
