@@ -2,7 +2,7 @@
 
 A lightweight, browser-only PDF reader with native PDF.js dark-page rendering.
 
-Open `index.html` on GitHub Pages. Drag a PDF into the start screen (or click to choose one); the file stays on your device.
+Open `index.html` on GitHub Pages. Drag a PDF into the start screen, or click to choose one; the file stays on your device.
 
 ## Features
 
