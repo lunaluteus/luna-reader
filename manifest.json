@@ -1,8 +1,8 @@
 {
-  "id": "/pdf-reader/",
-  "name": "PDF Reader",
-  "short_name": "PDF Reader",
-  "description": "A lightweight local PDF reader",
+  "id": "/luna-reader/",
+  "name": "Luna Reader",
+  "short_name": "Luna Reader",
+  "description": "Luna Reader: a lightweight local PDF viewer",
   "start_url": "./web/viewer.html?file=",
   "scope": "./",
   "display": "standalone",
