@@ -1,9 +1,9 @@
-/* Keep the upstream PDF.js viewer intact; invert only document pages. */
-.pdfViewer .page {
-  filter: invert(1) hue-rotate(180deg);
+/* Match unrendered page placeholders to the native PDF.js page background. */
+.native-page-colors .pdfViewer {
+  --page-bg-color: #1b1c20;
 }
 
-/* An empty reader should invite opening a PDF, without extra JavaScript. */
+/* An empty reader should invite opening a PDF. */
 #viewer:not(:has(.page))::before {
   content: "Drop a PDF here, or use Open to choose a file";
   position: fixed;
