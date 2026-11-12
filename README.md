@@ -1,33 +1,42 @@
 # PDF Reader
 
-A simple PDF reader using Mozilla's **official PDF.js viewer**, hosted on GitHub Pages.
-No fork, iframe, custom renderer, npm install, or server.
+A lightweight reader based on Mozilla's **official PDF.js viewer**, hosted on GitHub Pages.
+No iframe, fork, custom renderer, npm install, or server.
 
 **Site:** https://lunaluteus.github.io/pdf-reader/
 
 ## How it works
 
-On each deployment, [GitHub Actions](.github/workflows/pages.yml) downloads a pinned
-official PDF.js prebuilt release (**v6.5.438**), adds one [CSS file](dark.css)
-to invert rendered PDF pages, and publishes the distribution to GitHub Pages.
-The upstream viewer provides text selection, search, links, outlines, navigation,
-forms, printing, and drag-and-drop/file-picker opening.
+On each deployment, [GitHub Actions](.github/workflows/pages.yml) downloads the
+official PDF.js release (**v6.5.438**) and publishes it to GitHub Pages.
+Only two small custom files are injected into the viewer:
 
-The site starts with no sample PDF using `viewer.html?file=`. Local PDFs are
-opened by the browser, not uploaded to a server.
+- [`colors.js`](colors.js) sets the native PDF.js viewer preferences
+  `forcePageColors: true`, `pageColorsBackground: "#1b1c20"`,
+  and `pageColorsForeground: "#e4e6ec"` before the viewer starts.
+- [`dark.css`](dark.css) matches unrendered page placeholders to the dark background
+  and displays a prompt when no file is open.
+
+Unlike CSS inversion, PDF.js page recoloring aims to preserve images and figures.
+It is a high-contrast color override, not a guaranteed conversion of every PDF
+element; some text, vector graphics, or backgrounds may retain their colors.
+The viewer retains upstream support for selectable text, hyperlinks, search,
+outlines, navigation, forms, printing, and drag-and-drop/file-picker opening.
+
+The site starts without a sample document using `viewer.html?file=`.
+Local PDFs stay in the browser and are not uploaded to a backend.
 
 ## GitHub Pages setup
 
-In **Settings → Pages → Build and deployment**, select **GitHub Actions**
-as the source. The workflow then deploys from pushes to `main` or can be run
-manually under **Actions → Deploy PDF Reader**.
+In **Settings → Pages → Build and deployment**, select **GitHub Actions** as
+the source. Pushes to `main` trigger deployment; the workflow can also
+be run manually in **Actions → Deploy PDF Reader**.
 
 ## Customization
 
-Only [`dark.css`](dark.css) is custom viewer code. It uses whole-page inversion,
-so embedded images and colored figures are inverted too. To change the upstream
-release, edit `PDFJS_VERSION` in the workflow.
+Change the colors in [`colors.js`](colors.js) and the matching placeholder
+background in [`dark.css`](dark.css). The browser's other saved PDF.js
+preferences are preserved. Colors are enforced on each page load.
 
-The viewer is produced only in the Pages deployment artifact, not checked into
-the repository. The original PDF.js license is included in the downloaded
-distribution.
+To update PDF.js, change `PDFJS_VERSION` in the workflow. The viewer files
+exist only in the Pages deployment artifact; none are checked into this repository.
