@@ -1,18 +1,15 @@
-/* Match unrendered page placeholders to the native PDF.js page background. */
 .native-page-colors .pdfViewer {
   --page-bg-color: #34363b;
 }
 
-/* An empty reader should invite opening a PDF. */
 #viewer:not(:has(.page))::before {
-  content: "Drop a PDF here, or use Open to choose a file";
+  content: "Drop a PDF here or use Open";
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  max-width: calc(100vw - 48px);
   color: #aaaeb8;
-  font: 500 16px/1.6 system-ui, sans-serif;
+  font: 500 16px system-ui, sans-serif;
   text-align: center;
   pointer-events: none;
 }
