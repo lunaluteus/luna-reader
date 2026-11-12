@@ -99,7 +99,6 @@ jobs:
 
           # Fail this build instead of silently deploying a viewer without PWA metadata.
           import json
-          from html.parser import HTMLParser
           manifest = json.loads(Path("_site/manifest.json").read_text(encoding="utf-8"))
           assert manifest["file_handlers"][0]["accept"]["application/pdf"] == [".pdf"]
           assert manifest["start_url"].startswith("./web/viewer.html")
