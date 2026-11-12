@@ -43,7 +43,7 @@ jobs:
           viewer.write_text(
               html.replace(
                   "</head>",
-                  '<link rel="stylesheet" href="dark.css">\n',
+                  '<link rel="stylesheet" href="dark.css">\n'
                   '<script src="colors.js"></script>\n</head>',
                   1,
               ),
