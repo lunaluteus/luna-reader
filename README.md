@@ -37,7 +37,7 @@ Local PDFs stay in the browser and are not uploaded to a backend.
 4. Double-click a PDF to open it in the installed reader. The browser may ask
    for permission the first time it handles a local file.
 
-The [PWA manifest](manifest.webmanifest) registers the `.pdf` extension, and
+The [PWA manifest](manifest.json), served with a JSON content type, registers the `.pdf` extension, and
 the deployment generates app icons. No service worker is required for installation
 in current Chromium browsers; **offline use is not guaranteed** because the
 upstream viewer is not explicitly cached for offline access.
@@ -56,3 +56,6 @@ preferences are preserved. Colors are enforced on each page load.
 
 To update PDF.js, change `PDFJS_VERSION` in the workflow. The viewer files
 exist only in the Pages deployment artifact; none are checked into this repository.
+
+The Pages build checks that both the root entry page and the PDF.js viewer
+reference the manifest, and that the file-handler configuration and icons exist.
