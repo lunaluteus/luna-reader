@@ -33,13 +33,17 @@ jobs:
       - name: Apply native PDF.js colors and empty-file entry point
         run: |
           set -euo pipefail
-          cp dark.css colors.js _site/web/
+          cp dark.css colors.js launch.js _site/web/
+          cp manifest.webmanifest _site/
           python3 - <<'PY'
           from hashlib import sha256
           from pathlib import Path
+          import struct
+          import zlib
 
           # Version the CSS URL so browsers don't reuse the previous inversion filter.
           css_version = sha256(Path("_site/web/dark.css").read_bytes()).hexdigest()[:12]
+          launch_version = sha256(Path("_site/web/launch.js").read_bytes()).hexdigest()[:12]
           viewer = Path("_site/web/viewer.html")
           html = viewer.read_text(encoding="utf-8")
           assert "</head>" in html, "Upstream viewer markup changed"
@@ -47,7 +51,9 @@ jobs:
               html.replace(
                   "</head>",
                   f'<link rel="stylesheet" href="dark.css?v={css_version}">\n'
-                  '<script src="colors.js"></script>\n</head>',
+                  '<link rel="manifest" href="../manifest.webmanifest">\n'
+                  '<script src="colors.js"></script>\n'
+                  f'<script src="launch.js?v={launch_version}"></script>\n</head>',
                   1,
               ),
               encoding="utf-8",
@@ -63,6 +69,33 @@ jobs:
               '</body></html>\n',
               encoding="utf-8",
           )
+          # Generate 192/512px installation icons with the Python standard library.
+          def chunk(tag, payload):
+              return (struct.pack(">I", len(payload)) + tag + payload
+                      + struct.pack(">I", zlib.crc32(tag + payload) & 0xFFFFFFFF))
+
+          icon_dir = Path("_site/web/icons")
+          icon_dir.mkdir(parents=True, exist_ok=True)
+          for size in (192, 512):
+              pixels = bytearray()
+              for y in range(size):
+                  pixels.append(0)  # PNG filter: none
+                  for x in range(size):
+                      u, v = x / size, y / size
+                      color = (52, 54, 59)  # Background
+                      if .23 <= u <= .77 and .13 <= v <= .87:
+                          color = (189, 193, 200)  # Document
+                          if .62 <= u <= .77 and .13 <= v <= .28:
+                              color = (122, 129, 144) if u + v >= .90 else (52, 54, 59)
+                          if .31 <= u <= .66 and any(a <= v <= a + .025 for a in (.39, .49, .59, .69)):
+                              color = (72, 77, 89)  # Lines
+                      pixels.extend(color)
+              raw = (b"\x89PNG\r\n\x1a\n"
+                     + chunk(b"IHDR", struct.pack(">IIBBBBB", size, size, 8, 2, 0, 0, 0))
+                     + chunk(b"IDAT", zlib.compress(bytes(pixels), 9))
+                     + chunk(b"IEND", b""))
+              (icon_dir / f"app-{size}.png").write_bytes(raw)
+
           Path("_site/.nojekyll").touch()
           PY
 
