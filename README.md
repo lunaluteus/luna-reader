@@ -6,12 +6,10 @@ A minimal dark-mode PDF reader based on [PDF.js](https://github.com/mozilla/pdf.
 
 Drop a PDF into the viewer or use **Open**. Files stay on your device.
 
-## Install on Windows
+## Install as an App
 
-Install the site as an app in Chrome or Edge. To make it the default PDF reader, select **Luna Reader** for `.pdf` in Windows **Settings → Apps → Default apps**.
+Luna Reader can be installed as an [Progressive Web App](https://en.wikipedia.org/wiki/Progressive_web_app), which allows you to register Luna Reader as a PDF file handler for your system. Typically, an install button should appear in the address bar when you open this site.
 
 ## Deploy
 
-Set **Settings → Pages → Source** to **GitHub Actions**. Pushing to `main` publishes the site.
-
-The [workflow](.github/workflows/pages.yml) downloads PDF.js v6.5.438; [build.py](build.py) adds the [dark palette and file handling](app.js), [styles](dark.css), and [PWA manifest](manifest.json).
+The GitHub Actions [workflow](.github/workflows/pages.yml) downloads PDF.js. [build.py](build.py) adds the [dark palette and file handling](app.js), [styles](dark.css), and [PWA manifest](manifest.json). Then they are published to GitHub Pages.
