@@ -34,7 +34,7 @@ jobs:
         run: |
           set -euo pipefail
           cp dark.css colors.js launch.js _site/web/
-          cp manifest.webmanifest _site/
+          cp manifest.json _site/
           python3 - <<'PY'
           from hashlib import sha256
           from pathlib import Path
@@ -51,7 +51,7 @@ jobs:
               html.replace(
                   "</head>",
                   f'<link rel="stylesheet" href="dark.css?v={css_version}">\n'
-                  '<link rel="manifest" href="../manifest.webmanifest">\n'
+                  '<link rel="manifest" href="../manifest.json">\n'
                   '<script src="colors.js"></script>\n'
                   f'<script src="launch.js?v={launch_version}"></script>\n</head>',
                   1,
@@ -64,7 +64,8 @@ jobs:
           Path("_site/index.html").write_text(
               '<!doctype html><html lang="en"><head><meta charset="utf-8">'
               '<meta http-equiv="refresh" content="0;url=web/viewer.html?file=">'
-              '<title>PDF Reader</title></head><body>'
+              '<title>PDF Reader</title>'
+              '<link rel="manifest" href="manifest.json"></head><body>'
               '<a href="web/viewer.html?file=">Open PDF Reader</a>'
               '</body></html>\n',
               encoding="utf-8",
@@ -96,6 +97,18 @@ jobs:
                      + chunk(b"IEND", b""))
               (icon_dir / f"app-{size}.png").write_bytes(raw)
 
+          # Fail this build instead of silently deploying a viewer without PWA metadata.
+          import json
+          from html.parser import HTMLParser
+          manifest = json.loads(Path("_site/manifest.json").read_text(encoding="utf-8"))
+          assert manifest["file_handlers"][0]["accept"]["application/pdf"] == [".pdf"]
+          assert manifest["start_url"].startswith("./web/viewer.html")
+          assert all((Path("_site") / item["src"]).is_file() for item in manifest["icons"])
+          for file in ("_site/index.html", "_site/web/viewer.html"):
+              content = Path(file).read_text(encoding="utf-8")
+              assert 'rel="manifest"' in content, f"{file}: manifest link missing"
+          assert 'href="../manifest.json"' in Path("_site/web/viewer.html").read_text()
+          assert 'href="manifest.json"' in Path("_site/index.html").read_text()
           Path("_site/.nojekyll").touch()
           PY
 
