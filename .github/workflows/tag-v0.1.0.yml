@@ -1,0 +1,22 @@
+name: Tag v0.1.0
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/tag-v0.1.0.yml
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create v0.1.0 tag
+        run: |
+          git tag v0.1.0 837634ff45a5fb79c69f3f804edeffe844829a6a
+          git push origin refs/tags/v0.1.0
